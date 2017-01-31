@@ -63,7 +63,7 @@ public class RxBusProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        note("process RxBus annotations...");
+        note("process RxBusHelper annotations...");
 
         if (!processAnnotations(roundEnv, EventSubscribe.class)) return false;
 
@@ -81,9 +81,9 @@ public class RxBusProcessor extends AbstractProcessor {
                     note("annotation method params size=" + methodParams.size());
                     if (methodParams != null && methodParams.size() > 0) {
                         for (VariableElement variableElement : methodParams) {
-                            if(isBasicType(variableElement)){
+                            if (isBasicType(variableElement)) {
                                 note(variableElement.asType().getKind().name());
-                            }else{
+                            } else {
                                 Element element = typeUtils.asElement(variableElement.asType());
                                 note(element.getSimpleName().toString());
                             }
