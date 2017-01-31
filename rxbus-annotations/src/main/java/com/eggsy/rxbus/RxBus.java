@@ -13,7 +13,7 @@ import io.reactivex.disposables.Disposable;
 
 public final class RxBus {
 
-    private static final String SUFFIX = "$$RxBusProxy";
+    public static final String SUFFIX = "$$RxBusProxy";
 
     /**
      * proxyInstanceMap

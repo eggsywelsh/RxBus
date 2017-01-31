@@ -1,9 +1,14 @@
 package com.eggsy.rxbus;
 
 import com.eggsy.rxbus.annotation.EventSubscribe;
+import com.eggsy.rxbus.assist.ProxyClassInfo;
+import com.eggsy.rxbus.assist.ProxyMethodInfo;
+import com.eggsy.rxbus.assist.ProxyParameterInfo;
 import com.eggsy.rxbus.util.ClassValidator;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +38,12 @@ public class RxBusProcessor extends AbstractProcessor {
     private Elements elementUtils;
     private Filer filer;
     private Messager messager;
+
+    /**
+     * key:full class name
+     * value:ProxyClassInfo
+     */
+    private HashMap<String, ProxyClassInfo> proxyClassInfoMap = new HashMap<>();
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -75,18 +86,76 @@ public class RxBusProcessor extends AbstractProcessor {
             for (Element annotatedElement : roundEnv.getElementsAnnotatedWith(clazz)) {
                 if (checkMethodValid(annotatedElement, clazz)) {
                     ExecutableElement methodElement = (ExecutableElement) annotatedElement;
-                    String methodName = methodElement.getSimpleName().toString();
-//                    note("annotation method name="+methodName);
-                    List<? extends VariableElement> methodParams = methodElement.getParameters();
-                    note("annotation method params size=" + methodParams.size());
-                    if (methodParams != null && methodParams.size() > 0) {
-                        for (VariableElement variableElement : methodParams) {
-                            if (isBasicType(variableElement)) {
-                                note(variableElement.asType().getKind().name());
-                            } else {
-                                Element element = typeUtils.asElement(variableElement.asType());
-                                note(element.getSimpleName().toString());
-                            }
+
+                    ProxyClassInfo proxyClassInfo = extractClassInfo(methodElement);
+                    ProxyMethodInfo proxyMethodInfo = extractMethodInfo(proxyClassInfo, methodElement, clazz);
+                    extractMethodParametersInfo(proxyMethodInfo, methodElement);
+
+
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private ProxyClassInfo extractClassInfo(ExecutableElement methodElement) {
+        if (methodElement != null) {
+            String fullClassName = getClassFullName(methodElement);
+            ProxyClassInfo proxyClassInfo = proxyClassInfoMap.get(fullClassName);
+            if (proxyClassInfo == null) {
+                proxyClassInfo = new ProxyClassInfo();
+                proxyClassInfo.setProxyClassFullName(fullClassName);
+                proxyClassInfoMap.put(fullClassName, proxyClassInfo);
+            }
+            return proxyClassInfo;
+        }
+
+        return null;
+    }
+
+    private ProxyMethodInfo extractMethodInfo(ProxyClassInfo proxyClassInfo, ExecutableElement methodElement, Class<? extends Annotation> clazz) {
+        if (proxyClassInfo != null && methodElement != null) {
+            Annotation annotation = methodElement.getAnnotation(clazz);
+            if (annotation instanceof EventSubscribe) {
+                EventSubscribe eventSubscribe = (EventSubscribe) annotation;
+                String methodName = methodElement.getSimpleName().toString();
+
+                ProxyMethodInfo proxyMethodInfo = new ProxyMethodInfo();
+                proxyMethodInfo.setMethodName(methodName);
+                proxyMethodInfo.setThreadMode(eventSubscribe.tmode());
+
+                HashMap<String, ProxyMethodInfo> proxyMethodInfoMap = proxyClassInfo.getProxyMethodInfoMap();
+                if (proxyMethodInfoMap == null) {
+                    proxyMethodInfoMap = new HashMap<>();
+                    proxyMethodInfoMap.put(methodName, proxyMethodInfo);
+                    proxyClassInfo.setProxyMethodInfoMap(proxyMethodInfoMap);
+                }
+
+                return proxyMethodInfo;
+            }
+
+        }
+        return null;
+    }
+
+    private void extractMethodParametersInfo(ProxyMethodInfo proxyMethodInfo, ExecutableElement methodElement) {
+        List<? extends VariableElement> methodParams = methodElement.getParameters();
+        note("annotation method params size=" + methodParams.size());
+        List<ProxyParameterInfo> proxyParameterInfos = new ArrayList<>();
+        if (methodParams != null && methodParams.size() > 0) {
+            for (VariableElement variableElement : methodParams) {
+                ProxyParameterInfo proxyParameterInfo = new ProxyParameterInfo();
+                if (isBasicType(variableElement)) {
+                    proxyParameterInfo.setParameterClassName(variableElement.asType().getKind().name());
+                } else {
+                    Element element = typeUtils.asElement(variableElement.asType());
+                    proxyParameterInfo.setParameterClassName(element.getSimpleName().toString());
+                }
+                proxyParameterInfos.add(proxyParameterInfo);
+
+//                            filer.
+
                             /*TypeElement typeElement = (TypeElement)typeUtils.asElement(variableElement.asType());
                             if(typeElement!=null){
                                 note(typeElement.getQualifiedName().toString());
@@ -99,13 +168,18 @@ public class RxBusProcessor extends AbstractProcessor {
 //                            note("variable ="+variableElement.getEnclosingElement().toString());
 //                            TypeElement paramsElement = (TypeElement)variableElement;
 //                            note("ttttt"+paramsElement.getQualifiedName().toString());
-                        }
-                    }
-                }
             }
         }
+        proxyMethodInfo.setParameterInfos(proxyParameterInfos);
+    }
 
-        return true;
+    private String getClassFullName(ExecutableElement methodElement) {
+        //class type
+        TypeElement classElement = (TypeElement) methodElement.getEnclosingElement();
+        //full class name
+        String fqClassName = classElement.getQualifiedName().toString();
+
+        return fqClassName;
     }
 
     private boolean isBasicType(Element element) {
