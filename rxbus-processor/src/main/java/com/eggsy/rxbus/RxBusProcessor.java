@@ -99,6 +99,12 @@ public class RxBusProcessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * extract annotation method's class info into ProxyClassInfo
+     *
+     * @param methodElement
+     * @return
+     */
     private ProxyClassInfo extractClassInfo(ExecutableElement methodElement) {
         if (methodElement != null) {
             String fullClassName = getClassFullName(methodElement);
@@ -114,6 +120,14 @@ public class RxBusProcessor extends AbstractProcessor {
         return null;
     }
 
+    /**
+     * extract annotation method info into ProxyMethodInfo instance
+     *
+     * @param proxyClassInfo
+     * @param methodElement
+     * @param clazz
+     * @return
+     */
     private ProxyMethodInfo extractMethodInfo(ProxyClassInfo proxyClassInfo, ExecutableElement methodElement, Class<? extends Annotation> clazz) {
         if (proxyClassInfo != null && methodElement != null) {
             Annotation annotation = methodElement.getAnnotation(clazz);
@@ -139,6 +153,12 @@ public class RxBusProcessor extends AbstractProcessor {
         return null;
     }
 
+    /**
+     * extract method's parameters into ProxyMethodInfo instance
+     *
+     * @param proxyMethodInfo
+     * @param methodElement
+     */
     private void extractMethodParametersInfo(ProxyMethodInfo proxyMethodInfo, ExecutableElement methodElement) {
         List<? extends VariableElement> methodParams = methodElement.getParameters();
         note("annotation method params size=" + methodParams.size());
@@ -153,26 +173,17 @@ public class RxBusProcessor extends AbstractProcessor {
                     proxyParameterInfo.setParameterClassName(element.getSimpleName().toString());
                 }
                 proxyParameterInfos.add(proxyParameterInfo);
-
-//                            filer.
-
-                            /*TypeElement typeElement = (TypeElement)typeUtils.asElement(variableElement.asType());
-                            if(typeElement!=null){
-                                note(typeElement.getQualifiedName().toString());
-                            }else{
-                                error();
-                            }*/
-
-//                            note("variable type="+variableElement.getSimpleName().toString()+" , value="+variableElement.getConstantValue());
-//                            note("vaiable ="+variableElement.toString());
-//                            note("variable ="+variableElement.getEnclosingElement().toString());
-//                            TypeElement paramsElement = (TypeElement)variableElement;
-//                            note("ttttt"+paramsElement.getQualifiedName().toString());
             }
         }
         proxyMethodInfo.setParameterInfos(proxyParameterInfos);
     }
 
+    /**
+     * extract ExecutableElement belong class full name(include package)
+     *
+     * @param methodElement
+     * @return class full name
+     */
     private String getClassFullName(ExecutableElement methodElement) {
         //class type
         TypeElement classElement = (TypeElement) methodElement.getEnclosingElement();
@@ -182,6 +193,12 @@ public class RxBusProcessor extends AbstractProcessor {
         return fqClassName;
     }
 
+    /**
+     * judge the java basic type
+     *
+     * @param element
+     * @return
+     */
     private boolean isBasicType(Element element) {
         return element.asType().getKind().isPrimitive();
     }
