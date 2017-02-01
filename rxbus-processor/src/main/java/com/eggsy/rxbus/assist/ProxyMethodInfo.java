@@ -2,8 +2,6 @@ package com.eggsy.rxbus.assist;
 
 import com.eggsy.rxbus.ThreadMode;
 
-import java.util.List;
-
 /**
  * Created by eggsy on 17-1-31.
  *
@@ -16,7 +14,7 @@ public class ProxyMethodInfo {
 
     private ThreadMode threadMode;
 
-    private List<ProxyParameterInfo> parameterInfos;
+    private ProxyParameterInfo parameterInfo;
 
     public String getMethodName() {
         return methodName;
@@ -34,11 +32,11 @@ public class ProxyMethodInfo {
         this.threadMode = threadMode;
     }
 
-    public List<ProxyParameterInfo> getParameterInfos() {
-        return parameterInfos;
+    public ProxyParameterInfo getParameterInfo() {
+        return parameterInfo;
     }
 
-    public void setParameterInfos(List<ProxyParameterInfo> parameterInfos) {
-        this.parameterInfos = parameterInfos;
+    public void setParameterInfo(ProxyParameterInfo parameterInfo) {
+        this.parameterInfo = parameterInfo;
     }
 }

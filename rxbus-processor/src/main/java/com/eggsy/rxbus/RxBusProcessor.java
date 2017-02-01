@@ -110,8 +110,7 @@ public class RxBusProcessor extends AbstractProcessor {
             String fullClassName = getClassFullName(methodElement);
             ProxyClassInfo proxyClassInfo = proxyClassInfoMap.get(fullClassName);
             if (proxyClassInfo == null) {
-                proxyClassInfo = new ProxyClassInfo();
-                proxyClassInfo.setProxyClassFullName(fullClassName);
+                proxyClassInfo = new ProxyClassInfo(fullClassName);
                 proxyClassInfoMap.put(fullClassName, proxyClassInfo);
             }
             return proxyClassInfo;
@@ -161,10 +160,10 @@ public class RxBusProcessor extends AbstractProcessor {
      */
     private void extractMethodParametersInfo(ProxyMethodInfo proxyMethodInfo, ExecutableElement methodElement) {
         List<? extends VariableElement> methodParams = methodElement.getParameters();
-        note("annotation method params size=" + methodParams.size());
         List<ProxyParameterInfo> proxyParameterInfos = new ArrayList<>();
-        if (methodParams != null && methodParams.size() > 0) {
-            for (VariableElement variableElement : methodParams) {
+        if (methodParams != null) {
+            if (methodParams.size() == 1) {
+                VariableElement variableElement = methodParams.get(0);
                 ProxyParameterInfo proxyParameterInfo = new ProxyParameterInfo();
                 if (isBasicType(variableElement)) {
                     proxyParameterInfo.setParameterClassName(variableElement.asType().getKind().name());
@@ -172,10 +171,16 @@ public class RxBusProcessor extends AbstractProcessor {
                     Element element = typeUtils.asElement(variableElement.asType());
                     proxyParameterInfo.setParameterClassName(element.getSimpleName().toString());
                 }
-                proxyParameterInfos.add(proxyParameterInfo);
+                proxyMethodInfo.setParameterInfo(proxyParameterInfo);
+            } else if (methodParams.size() > 1) {
+                error("EventSubscribe annotation method's parameters size can't be more than one");
+            } else if (methodParams.size() == 0) {
+                error("EventSubscribe annotation method's parameters size can't be zero");
             }
+        } else {
+            error("EventSubscribe annotation method's parameters size can't be zero");
         }
-        proxyMethodInfo.setParameterInfos(proxyParameterInfos);
+
     }
 
     /**
