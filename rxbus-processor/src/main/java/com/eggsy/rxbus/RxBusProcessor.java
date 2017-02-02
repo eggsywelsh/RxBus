@@ -5,7 +5,9 @@ import com.eggsy.rxbus.assist.ProxyClassInfo;
 import com.eggsy.rxbus.assist.ProxyMethodInfo;
 import com.eggsy.rxbus.assist.ProxyParameterInfo;
 import com.eggsy.rxbus.util.ClassValidator;
+import com.squareup.javapoet.JavaFile;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,9 +78,25 @@ public class RxBusProcessor extends AbstractProcessor {
 
         note("process RxBusHelper annotations...");
 
+        proxyClassInfoMap.clear();
+
         if (!processAnnotations(roundEnv, EventSubscribe.class)) return false;
 
-        return false;
+        if (proxyClassInfoMap != null && proxyClassInfoMap.size() > 0) {
+            for (String key : proxyClassInfoMap.keySet()) {
+                ProxyClassInfo proxyInfo = proxyClassInfoMap.get(key);
+                try {
+                    JavaFile javaFile = JavaFile
+                            .builder(proxyInfo.getPackageName(), proxyInfo.generateCode.generateProxyClassCode())
+                            .build();
+                    javaFile.writeTo(filer);
+                } catch (IOException e) {
+                    error(e.getMessage());
+                }
+            }
+        }
+
+        return true;
     }
 
     private boolean processAnnotations(RoundEnvironment roundEnv, Class<? extends Annotation> clazz) {
@@ -88,9 +106,10 @@ public class RxBusProcessor extends AbstractProcessor {
                     ExecutableElement methodElement = (ExecutableElement) annotatedElement;
 
                     ProxyClassInfo proxyClassInfo = extractClassInfo(methodElement);
-                    ProxyMethodInfo proxyMethodInfo = extractMethodInfo(proxyClassInfo, methodElement, clazz);
-                    extractMethodParametersInfo(proxyMethodInfo, methodElement);
 
+                    ProxyMethodInfo proxyMethodInfo = extractMethodInfo(proxyClassInfo, methodElement, clazz);
+
+                    ProxyParameterInfo proxyParameterInfo = extractMethodParameterInfo(proxyMethodInfo, methodElement);
 
                 }
             }
@@ -110,7 +129,8 @@ public class RxBusProcessor extends AbstractProcessor {
             String fullClassName = getClassFullName(methodElement);
             ProxyClassInfo proxyClassInfo = proxyClassInfoMap.get(fullClassName);
             if (proxyClassInfo == null) {
-                proxyClassInfo = new ProxyClassInfo(fullClassName);
+                proxyClassInfo = new ProxyClassInfo(elementUtils, (TypeElement) methodElement.getEnclosingElement());
+
                 proxyClassInfoMap.put(fullClassName, proxyClassInfo);
             }
             return proxyClassInfo;
@@ -141,9 +161,11 @@ public class RxBusProcessor extends AbstractProcessor {
                 HashMap<String, ProxyMethodInfo> proxyMethodInfoMap = proxyClassInfo.getProxyMethodInfoMap();
                 if (proxyMethodInfoMap == null) {
                     proxyMethodInfoMap = new HashMap<>();
-                    proxyMethodInfoMap.put(methodName, proxyMethodInfo);
-                    proxyClassInfo.setProxyMethodInfoMap(proxyMethodInfoMap);
                 }
+
+                proxyMethodInfoMap.put(methodName, proxyMethodInfo);
+                proxyClassInfo.setProxyMethodInfoMap(proxyMethodInfoMap);
+
 
                 return proxyMethodInfo;
             }
@@ -158,7 +180,7 @@ public class RxBusProcessor extends AbstractProcessor {
      * @param proxyMethodInfo
      * @param methodElement
      */
-    private void extractMethodParametersInfo(ProxyMethodInfo proxyMethodInfo, ExecutableElement methodElement) {
+    private ProxyParameterInfo extractMethodParameterInfo(ProxyMethodInfo proxyMethodInfo, ExecutableElement methodElement) {
         List<? extends VariableElement> methodParams = methodElement.getParameters();
         List<ProxyParameterInfo> proxyParameterInfos = new ArrayList<>();
         if (methodParams != null) {
@@ -172,6 +194,8 @@ public class RxBusProcessor extends AbstractProcessor {
                     proxyParameterInfo.setParameterClassName(element.getSimpleName().toString());
                 }
                 proxyMethodInfo.setParameterInfo(proxyParameterInfo);
+
+                return proxyParameterInfo;
             } else if (methodParams.size() > 1) {
                 error("EventSubscribe annotation method's parameters size can't be more than one");
             } else if (methodParams.size() == 0) {
@@ -181,6 +205,7 @@ public class RxBusProcessor extends AbstractProcessor {
             error("EventSubscribe annotation method's parameters size can't be zero");
         }
 
+        return null;
     }
 
     /**
