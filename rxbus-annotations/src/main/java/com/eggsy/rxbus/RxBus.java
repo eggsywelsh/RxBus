@@ -33,7 +33,6 @@ public final class RxBus {
         Disposable disposable = null;
         RxBusProxy rxBusProxy = findRxBusProxy(object);
         if (rxBusProxy != null) {
-//            CompositeDisposable compositeDisposable = new CompositeDisposable();
             disposable = rxBusProxy.register(object);
         }
         return disposable;
