@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @EventSubscribe
-    public void test(int a,String b ){
+    public void test(String testParam ){
 
     }
 }
