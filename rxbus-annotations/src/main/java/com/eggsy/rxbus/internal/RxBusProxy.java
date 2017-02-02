@@ -6,10 +6,10 @@ import io.reactivex.disposables.Disposable;
  * Created by eggsy on 17-1-25.
  */
 
-public interface RxBusProxy {
+public interface RxBusProxy<S> {
 
-    Disposable register(Object object);
+    Disposable register(S source);
 
-    void unRegister(Object object);
+    void unRegister(S source);
 
 }
