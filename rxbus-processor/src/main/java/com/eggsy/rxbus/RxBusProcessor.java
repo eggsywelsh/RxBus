@@ -157,6 +157,7 @@ public class RxBusProcessor extends AbstractProcessor {
                 ProxyMethodInfo proxyMethodInfo = new ProxyMethodInfo();
                 proxyMethodInfo.setMethodName(methodName);
                 proxyMethodInfo.setThreadMode(eventSubscribe.tmode());
+                proxyMethodInfo.setBackpressureStrategy(eventSubscribe.bpstrategy());
 
                 HashMap<String, ProxyMethodInfo> proxyMethodInfoMap = proxyClassInfo.getProxyMethodInfoMap();
                 if (proxyMethodInfoMap == null) {
