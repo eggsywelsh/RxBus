@@ -16,6 +16,8 @@ import butterknife.OnClick;
 
 public class PostEventActivity extends AppCompatActivity {
 
+    private int i = 0;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +26,7 @@ public class PostEventActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.btn_post)
-    public void clickPostEvent(View view){
-        RxBus.post("eggsy test!!!");
+    public void clickPostEvent(View view) {
+        RxBus.post("eggsy test " + (i++) + " times");
     }
 }
