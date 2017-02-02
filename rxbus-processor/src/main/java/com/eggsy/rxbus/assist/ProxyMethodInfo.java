@@ -1,5 +1,6 @@
 package com.eggsy.rxbus.assist;
 
+import com.eggsy.rxbus.Strategy;
 import com.eggsy.rxbus.ThreadMode;
 
 /**
@@ -13,6 +14,8 @@ public class ProxyMethodInfo {
     private String methodName;
 
     private ThreadMode threadMode;
+
+    private Strategy backpressureStrategy;
 
     private ProxyParameterInfo parameterInfo;
 
@@ -38,5 +41,13 @@ public class ProxyMethodInfo {
 
     public void setParameterInfo(ProxyParameterInfo parameterInfo) {
         this.parameterInfo = parameterInfo;
+    }
+
+    public Strategy getBackpressureStrategy() {
+        return backpressureStrategy;
+    }
+
+    public void setBackpressureStrategy(Strategy backpressureStrategy) {
+        this.backpressureStrategy = backpressureStrategy;
     }
 }
