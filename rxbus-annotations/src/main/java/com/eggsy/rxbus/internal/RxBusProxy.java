@@ -10,6 +10,6 @@ public interface RxBusProxy<S> {
 
     Disposable register(S source);
 
-    void unRegister(S source);
+    void unRegister();
 
 }

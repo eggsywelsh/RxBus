@@ -13,7 +13,7 @@ import io.reactivex.disposables.Disposable;
 
 public final class RxBus {
 
-    public static final String SUFFIX = "$$RxBusProxy";
+    public static final String SUFFIX = "_RxBusProxy";
 
     /**
      * proxyInstanceMap
@@ -41,9 +41,13 @@ public final class RxBus {
     public static void unRegister(Object object) {
         RxBusProxy rxBusProxy = findRxBusProxy(object);
         if (rxBusProxy != null) {
-            rxBusProxy.unRegister(object);
+            rxBusProxy.unRegister();
             removeRxBusProxy(rxBusProxy);
         }
+    }
+
+    public static void post(Object event){
+        RxBusHelper.getDefault().post(event);
     }
 
     private static RxBusProxy findRxBusProxy(Object object) {
