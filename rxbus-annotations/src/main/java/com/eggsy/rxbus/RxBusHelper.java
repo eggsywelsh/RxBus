@@ -17,7 +17,7 @@ import io.reactivex.subjects.Subject;
 /**
  * Created by eggsy on 17-1-9.
  */
-final class RxBusHelper {
+public final class RxBusHelper {
 
     private static RxBusHelper instance;
 
@@ -83,7 +83,7 @@ final class RxBusHelper {
         }
     }
 
-    public void post(final Object event) {
+    void post(final Object event) {
         subjectBus.onNext(event);
         processorBus.onNext(event);
     }
@@ -96,11 +96,11 @@ final class RxBusHelper {
         return processorBus.ofType(cls);
     }
 
-    public boolean hasObservers() {
+    boolean hasObservers() {
         return subjectBus.hasObservers();
     }
 
-    public boolean hasSubscribers() {
+    boolean hasSubscribers() {
         return processorBus.hasSubscribers();
     }
 
