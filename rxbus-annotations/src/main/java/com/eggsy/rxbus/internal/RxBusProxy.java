@@ -1,6 +1,6 @@
 package com.eggsy.rxbus.internal;
 
-import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * Created by eggsy on 17-1-25.
@@ -8,7 +8,7 @@ import io.reactivex.disposables.Disposable;
 
 public interface RxBusProxy<S> {
 
-    Disposable register(S source);
+    CompositeDisposable register(S source);
 
     void unRegister();
 
