@@ -18,7 +18,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 
 import static com.eggsy.rxbus.RxBus.SUFFIX;
 
@@ -126,7 +125,10 @@ public class ProxyClassInfo {
                     .methodBuilder("register")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(ParameterSpec.builder(TypeVariableName.get(proxyClassSimpleName), "source").build())
-                    .returns(TypeName.get(Disposable.class));
+                    .returns(TypeName.get(CompositeDisposable.class));
+
+            methodSpecBuilder.addStatement(SOURCE_PROXY_FIELD + "=source");
+
             for (Map.Entry<String, ProxyMethodInfo> entry : proxyMethodInfoMap.entrySet()) {
                 String methodName = entry.getKey();
                 ProxyMethodInfo methodInfo = entry.getValue();
@@ -135,17 +137,77 @@ public class ProxyClassInfo {
                 String registerClass = parameterClassName + ".class";
                 ClassName rxbusHelper = ClassName.bestGuess("com.eggsy.rxbus.RxBusHelper");
                 ClassName consumer = ClassName.bestGuess("io.reactivex.functions.Consumer");
-                methodSpecBuilder.addStatement(SOURCE_PROXY_FIELD+"=source");
-                methodSpecBuilder.addStatement("Disposable disposable = $T.getDefault().register(" + registerClass + "," + generateConsumerCode(parameterClassName, SOURCE_PROXY_FIELD, methodName) + ")"
-                        , rxbusHelper, consumer);
+                ClassName disposable = ClassName.bestGuess("io.reactivex.disposables.Disposable");
+
+                String disposableName = methodName + "_disposable";
+                methodSpecBuilder.addStatement(
+                        "$T " + disposableName + " = $T.getDefault().register(" + registerClass + "," +
+                                generateConsumerCode(parameterClassName, SOURCE_PROXY_FIELD, methodName) +
+                                generateInvokeRegisterCode(methodInfo) +
+                                generateBackpressureStrategyCode(methodInfo) + ")"
+                        , disposable, rxbusHelper, consumer);
                 methodSpecBuilder.beginControlFlow("if(compositeDisposable==null || compositeDisposable.isDisposed())");
                 methodSpecBuilder.addStatement("compositeDisposable = new CompositeDisposable()");
                 methodSpecBuilder.endControlFlow();
-                methodSpecBuilder.addStatement("compositeDisposable.add(disposable)");
-                methodSpecBuilder.addStatement("return disposable");
-
+                methodSpecBuilder.addStatement("compositeDisposable.add(" + disposableName + ")");
             }
+            methodSpecBuilder.addStatement("return " + COMPOSITE_DISPOSABLE_FIELD);
+
             return methodSpecBuilder.build();
+        }
+
+        private String generateInvokeRegisterCode(ProxyMethodInfo proxyMethodInfo) {
+            StringBuilder codeBuilder = new StringBuilder();
+            if (proxyMethodInfo != null) {
+                switch (proxyMethodInfo.getThreadMode()) {
+                    case MainThread:
+                        codeBuilder.append(",io.reactivex.android.schedulers.AndroidSchedulers.mainThread()");
+                        break;
+                    case IoThread:
+                        codeBuilder.append(",io.reactivex.schedulers.Schedulers.io()");
+                        break;
+                    case NewThread:
+                        codeBuilder.append(",io.reactivex.schedulers.Schedulers.newThread()");
+                        break;
+                    case Single:
+                        codeBuilder.append(",io.reactivex.schedulers.Schedulers.single()");
+                        break;
+                    case Computation:
+                        codeBuilder.append(",io.reactivex.schedulers.Schedulers.computation()");
+                        break;
+                    case Trampoline:
+                        codeBuilder.append(",io.reactivex.schedulers.Schedulers.trampoline()");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return codeBuilder.toString();
+        }
+
+        private String generateBackpressureStrategyCode(ProxyMethodInfo proxyMethodInfo) {
+            StringBuilder codeBuilder = new StringBuilder();
+            switch (proxyMethodInfo.getBackpressureStrategy()) {
+                case BUFFER:
+                    codeBuilder.append(",io.reactivex.BackpressureStrategy.BUFFER");
+                    break;
+                case DROP:
+                    codeBuilder.append(",io.reactivex.BackpressureStrategy.DROP");
+                    break;
+                case ERROR:
+                    codeBuilder.append(",io.reactivex.BackpressureStrategy.ERROR");
+                    break;
+                case MISSING:
+                    codeBuilder.append(",io.reactivex.BackpressureStrategy.MISSING");
+                    break;
+                case LATEST:
+                    codeBuilder.append(",io.reactivex.BackpressureStrategy.LATEST");
+                    break;
+                default:
+                    DEFAULT:
+                    break;
+            }
+            return codeBuilder.toString();
         }
 
         private MethodSpec generateUnRegisterMethodCode() {
@@ -153,24 +215,24 @@ public class ProxyClassInfo {
                     .methodBuilder("unRegister")
                     .addModifiers(Modifier.PUBLIC)
                     .returns(void.class);
-            methodSpecBuilder.addStatement(
-                    "if (compositeDisposable != null && !compositeDisposable.isDisposed()) {\n" +
-                            "compositeDisposable.dispose();\n" +
-                            "}");
+            methodSpecBuilder.beginControlFlow(
+                    "if (compositeDisposable != null && !compositeDisposable.isDisposed())");
+            methodSpecBuilder.addStatement("compositeDisposable.dispose()");
+
+            methodSpecBuilder.endControlFlow();
+
             return methodSpecBuilder.build();
         }
+
+        private String generateConsumerCode(String genericType, String sourceInstanceName, String sourceInstanceMethodName) {
+            return
+                    "new $T<" + genericType + ">(){\n" +
+                            "@Override\n" +
+                            "public void accept(" + genericType + " o) throws Exception {\n" +
+                            sourceInstanceName + "." + sourceInstanceMethodName + "(o);\n" +
+                            "}\n" +
+                            "}";
+        }
     }
-
-
-    private String generateConsumerCode(String genericType, String sourceInstanceName, String sourceInstanceMethodName) {
-        return
-                "new $T<" + genericType + ">(){\n" +
-                        "@Override\n" +
-                        "public void accept(" + genericType + " o) throws Exception {\n" +
-                        sourceInstanceName + "." + sourceInstanceMethodName + "(o);\n" +
-                        "}\n" +
-                        "}";
-    }
-
 
 }
