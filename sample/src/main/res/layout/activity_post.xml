@@ -11,9 +11,15 @@
     tools:context="com.eggsy.rxbus.sample.MainActivity">
 
     <Button
-        android:id="@+id/btn_post"
+        android:id="@+id/btn_post_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="post event"
-        />
+        android:text="post event(main thread)" />
+
+    <Button
+        android:id="@+id/btn_post_new"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_post_main"
+        android:text="post event(new thread)" />
 </RelativeLayout>

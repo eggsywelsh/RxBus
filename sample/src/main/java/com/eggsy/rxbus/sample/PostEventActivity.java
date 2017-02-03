@@ -25,10 +25,22 @@ public class PostEventActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick(R.id.btn_post)
-    public void clickPostEvent(View view) {
-        RxBus.post("eggsy test " + (i++) + " times");
-        RxBus.post(true);
-        RxBus.post(new Boolean(false));
+    @OnClick(R.id.btn_post_main)
+    public void clickPostMainEvent(View view) {
+        RxBus.post("(main thread) eggsy test " + (i++) + " times");
+//        RxBus.post(true);
+//        RxBus.post(new Boolean(false));
+    }
+
+    @OnClick(R.id.btn_post_new)
+    public void clickPostNewEvent(View view) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                RxBus.post("(new thread) eggsy test " + (i++) + " times");
+            }
+        }).start();
+//        RxBus.post(true);
+//        RxBus.post(new Boolean(false));
     }
 }
