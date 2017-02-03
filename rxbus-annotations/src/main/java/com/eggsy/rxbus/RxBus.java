@@ -4,7 +4,6 @@ import com.eggsy.rxbus.internal.RxBusProxy;
 
 import java.util.HashMap;
 
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -21,13 +20,6 @@ public final class RxBus {
      * value:proxy instance
      */
     static HashMap<String, RxBusProxy> proxyInstanceMap = new HashMap<>();
-
-    /**
-     * disposableMap
-     * key:proxy class full name
-     * value:CompositeDisposable instance
-     */
-    static HashMap<String, CompositeDisposable> disposableMap = new HashMap<>();
 
     public static Disposable register(Object object) {
         Disposable disposable = null;
