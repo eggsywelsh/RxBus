@@ -67,6 +67,20 @@ public class MainActivity extends AppCompatActivity {
 //        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
     }
 
+    @EventSubscribe
+    public void testboolean(boolean testParam) {
+        Log.i(TAG,"test boolean, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test boolean, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
+//        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
+    }
+
+    @EventSubscribe
+    public void testBoolean(Boolean testParam) {
+        Log.i(TAG,"test Boolean, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test Boolean, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
+//        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
+    }
+
     @OnClick(R.id.btn_test)
     public void clickStepTest(View v) {
         Intent postEventIntent = new Intent(this, PostEventActivity.class);

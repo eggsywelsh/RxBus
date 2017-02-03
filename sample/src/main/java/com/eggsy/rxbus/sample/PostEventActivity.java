@@ -28,5 +28,7 @@ public class PostEventActivity extends AppCompatActivity {
     @OnClick(R.id.btn_post)
     public void clickPostEvent(View view) {
         RxBus.post("eggsy test " + (i++) + " times");
+        RxBus.post(true);
+        RxBus.post(new Boolean(false));
     }
 }
