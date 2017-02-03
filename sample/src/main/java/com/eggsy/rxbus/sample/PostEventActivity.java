@@ -40,7 +40,5 @@ public class PostEventActivity extends AppCompatActivity {
                 RxBus.post("(new thread) eggsy test " + (i++) + " times");
             }
         }).start();
-//        RxBus.post(true);
-//        RxBus.post(new Boolean(false));
     }
 }

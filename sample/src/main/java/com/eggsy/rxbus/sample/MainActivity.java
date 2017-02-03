@@ -46,24 +46,24 @@ public class MainActivity extends AppCompatActivity {
 //        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
     }
 
-    @EventSubscribe(tmode = ThreadMode.Computation)
+    @EventSubscribe(tmode = ThreadMode.ComputationThread)
     public void test4(String testParam) {
-        Log.i(TAG,"test Computation, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
-        Log.i(TAG,"test Computation, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test ComputationThread, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test ComputationThread, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
 //        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
     }
 
-    @EventSubscribe(tmode = ThreadMode.Single)
+    @EventSubscribe(tmode = ThreadMode.SingleThread)
     public void test5(String testParam) {
-        Log.i(TAG,"test Single, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
-        Log.i(TAG,"test Single, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test SingleThread, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test SingleThread, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
 //        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
     }
 
-    @EventSubscribe(tmode = ThreadMode.Trampoline)
-    public void test6(String testParam) {
-        Log.i(TAG,"test Trampoline, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
-        Log.i(TAG,"test Trampoline, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
+    @EventSubscribe(tmode = ThreadMode.PostThread)
+    public void test7(String testParam) {
+        Log.i(TAG,"test PostThread, main thread id="+getMainLooper().getThread().getId()+" , result="+testParam);
+        Log.i(TAG,"test PostThread, curr thread id="+Thread.currentThread().getId()+" , result="+testParam);
 //        Toast.makeText(this, testParam, Toast.LENGTH_SHORT).show();
     }
 

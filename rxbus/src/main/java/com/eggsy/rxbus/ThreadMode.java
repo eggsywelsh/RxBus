@@ -24,7 +24,7 @@ public enum ThreadMode {
     /**
      *
      * Subscriber will be called in thread-pool that will grow as needed,intended for IO-bound work.
-     * This can be used for asynchronously performing blocking IO.Do not perform computational work on this scheduler. Use Computation instead.
+     * This can be used for asynchronously performing blocking IO.Do not perform computational work on this scheduler. Use ComputationThread instead.
      */
     IoThread,
 
@@ -38,18 +38,18 @@ public enum ThreadMode {
      * Subscriber will be called in common, single-thread,support benchmarks that pipeline data from the main thread to some other thread and
      * avoid core-bashing of computation's round-robin nature
      */
-    Single,
+    SingleThread,
 
     /**
      * Subscriber will be called in a new thread not in main thread,This can be used for event-loops, processing callbacks and other computational work
      * Do not perform IO-bound work on this scheduler. Use IoThread instead.
      */
-    Computation,
+    ComputationThread,
 
-    /**
+/*    *//**
      * Subscriber will be queues work on the current thread to be executed after the current work completes,work with the posting event thread
-     */
-    Trampoline
+     *//*
+    Trampoline*/
 
 
 }

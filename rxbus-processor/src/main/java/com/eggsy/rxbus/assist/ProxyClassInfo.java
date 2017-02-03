@@ -169,13 +169,13 @@ public class ProxyClassInfo {
                     case NewThread:
                         codeBuilder.append(",io.reactivex.schedulers.Schedulers.newThread()");
                         break;
-                    case Single:
+                    case SingleThread:
                         codeBuilder.append(",io.reactivex.schedulers.Schedulers.single()");
                         break;
-                    case Computation:
+                    case ComputationThread:
                         codeBuilder.append(",io.reactivex.schedulers.Schedulers.computation()");
                         break;
-                    case Trampoline:
+                    case PostThread:
                         codeBuilder.append(",io.reactivex.schedulers.Schedulers.trampoline()");
                         break;
                     default:
