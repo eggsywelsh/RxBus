@@ -188,12 +188,13 @@ public class RxBusProcessor extends AbstractProcessor {
             if (methodParams.size() == 1) {
                 VariableElement variableElement = methodParams.get(0);
                 ProxyParameterInfo proxyParameterInfo = new ProxyParameterInfo();
-                if (isBasicType(variableElement)) {
+                /*if (isBasicType(variableElement)) {
                     proxyParameterInfo.setParameterClassName(variableElement.asType().getKind().name());
                 } else {
                     Element element = typeUtils.asElement(variableElement.asType());
                     proxyParameterInfo.setParameterClassName(element.getSimpleName().toString());
-                }
+                }*/
+                proxyParameterInfo.setParameterClassName(getParameterTypeString(variableElement));
                 proxyMethodInfo.setParameterInfo(proxyParameterInfo);
 
                 return proxyParameterInfo;
@@ -232,6 +233,44 @@ public class RxBusProcessor extends AbstractProcessor {
      */
     private boolean isBasicType(Element element) {
         return element.asType().getKind().isPrimitive();
+    }
+
+    private String getParameterTypeString(VariableElement variableElement) {
+        String typeString = "";
+        if (isBasicType(variableElement)) {
+            switch (variableElement.asType().getKind()) {
+                case BOOLEAN:
+                    typeString = "Boolean";
+                    break;
+                case BYTE:
+                    typeString = "Byte";
+                    break;
+                case SHORT:
+                    typeString = "Short";
+                    break;
+                case INT:
+                    typeString = "Integer";
+                    break;
+                case LONG:
+                    typeString = "Long";
+                    break;
+                case CHAR:
+                    typeString = "Char";
+                    break;
+                case FLOAT:
+                    typeString = "Float";
+                    break;
+                case DOUBLE:
+                    typeString = "Double";
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            Element element = typeUtils.asElement(variableElement.asType());
+            typeString = element.getSimpleName().toString();
+        }
+        return typeString;
     }
 
     private void note(String msg) {
