@@ -1,0 +1,18 @@
+apply plugin: 'java'
+apply plugin: 'com.novoda.bintray-release'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    // rxjava
+    compile 'io.reactivex.rxjava2:rxjava:2.0.4'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+publish {
+    userOrg = 'greateeggsy'
+    groupId = 'com.eggsy'
+    artifactId = 'rxbus'
+    publishVersion = rootProject.ext.publicVersion
+}
