@@ -135,6 +135,7 @@ public class ProxyClassInfo {
 
                 String parameterClassName = methodInfo.getParameterInfo().getParameterClassName();
                 String registerClass = parameterClassName + ".class";
+                ClassName event = ClassName.bestGuess(methodInfo.getParameterInfo().getParameterFullName());
                 ClassName rxbusHelper = ClassName.bestGuess("com.eggsy.rxbus.RxBusHelper");
                 ClassName consumer = ClassName.bestGuess("io.reactivex.functions.Consumer");
                 ClassName disposable = ClassName.bestGuess("io.reactivex.disposables.Disposable");
@@ -142,10 +143,10 @@ public class ProxyClassInfo {
                 String disposableName = methodName + "_disposable";
                 methodSpecBuilder.addStatement(
                         "$T " + disposableName + " = $T.getDefault().register(" + registerClass + "," +
-                                generateConsumerCode(parameterClassName, SOURCE_PROXY_FIELD, methodName) +
+                                generateConsumerCode(SOURCE_PROXY_FIELD, methodName) +
                                 generateInvokeRegisterCode(methodInfo) +
                                 generateBackpressureStrategyCode(methodInfo) + ")"
-                        , disposable, rxbusHelper, consumer);
+                        , disposable, rxbusHelper, consumer, event, event);
                 methodSpecBuilder.beginControlFlow("if(compositeDisposable==null || compositeDisposable.isDisposed())");
                 methodSpecBuilder.addStatement("compositeDisposable = new CompositeDisposable()");
                 methodSpecBuilder.endControlFlow();
@@ -224,11 +225,11 @@ public class ProxyClassInfo {
             return methodSpecBuilder.build();
         }
 
-        private String generateConsumerCode(String genericType, String sourceInstanceName, String sourceInstanceMethodName) {
+        private String generateConsumerCode(String sourceInstanceName, String sourceInstanceMethodName) {
             return
-                    "new $T<" + genericType + ">(){\n" +
+                    "new $T<$T>(){\n" +
                             "@Override\n" +
-                            "public void accept(" + genericType + " o) throws Exception {\n" +
+                            "public void accept($T o) throws Exception {\n" +
                             sourceInstanceName + "." + sourceInstanceMethodName + "(o);\n" +
                             "}\n" +
                             "}";
