@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.eggsy.rxbus.RxBus;
+import com.eggsy.rxbus.sample.event.TestEvent;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -41,4 +42,13 @@ public class PostEventActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+    @OnClick(R.id.btn_post_event)
+    public void clickPostEventObject(View view){
+        TestEvent testEvent = new TestEvent();
+        testEvent.setTimes(i++);
+        testEvent.setContent("post event object");
+        RxBus.post(testEvent);
+    }
+
 }

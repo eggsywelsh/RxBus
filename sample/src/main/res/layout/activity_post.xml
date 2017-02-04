@@ -14,12 +14,21 @@
         android:id="@+id/btn_post_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="post event(main thread)" />
+        android:text="post event in main thread" />
 
     <Button
         android:id="@+id/btn_post_new"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/btn_post_main"
-        android:text="post event(new thread)" />
+        android:text="post event in new thread" />
+
+    <Button
+        android:id="@+id/btn_post_event"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_post_new"
+        android:text="post event object" />
+
+
 </RelativeLayout>
