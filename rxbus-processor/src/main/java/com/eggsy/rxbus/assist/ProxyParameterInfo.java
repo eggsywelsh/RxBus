@@ -9,6 +9,11 @@ package com.eggsy.rxbus.assist;
 public class ProxyParameterInfo {
 
     /**
+     * full class name(include package)
+     */
+    private String parameterFullName;
+
+    /**
      * type class name
      */
     private String parameterClassName;
@@ -19,5 +24,13 @@ public class ProxyParameterInfo {
 
     public void setParameterClassName(String parameterClassName) {
         this.parameterClassName = parameterClassName;
+    }
+
+    public String getParameterFullName() {
+        return parameterFullName;
+    }
+
+    public void setParameterFullName(String parameterFullName) {
+        this.parameterFullName = parameterFullName;
     }
 }
