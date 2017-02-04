@@ -9,7 +9,6 @@ import com.squareup.javapoet.JavaFile;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -183,18 +182,13 @@ public class RxBusProcessor extends AbstractProcessor {
      */
     private ProxyParameterInfo extractMethodParameterInfo(ProxyMethodInfo proxyMethodInfo, ExecutableElement methodElement) {
         List<? extends VariableElement> methodParams = methodElement.getParameters();
-        List<ProxyParameterInfo> proxyParameterInfos = new ArrayList<>();
         if (methodParams != null) {
             if (methodParams.size() == 1) {
                 VariableElement variableElement = methodParams.get(0);
                 ProxyParameterInfo proxyParameterInfo = new ProxyParameterInfo();
-                /*if (isBasicType(variableElement)) {
-                    proxyParameterInfo.setParameterClassName(variableElement.asType().getKind().name());
-                } else {
-                    Element element = typeUtils.asElement(variableElement.asType());
-                    proxyParameterInfo.setParameterClassName(element.getSimpleName().toString());
-                }*/
-                proxyParameterInfo.setParameterClassName(getParameterTypeString(variableElement));
+                proxyParameterInfo.setParameterClassName(getParameterClassName(variableElement));
+                proxyParameterInfo.setParameterFullName(getParameterFullName(variableElement));
+//                note("full name : "+proxyParameterInfo.getParameterFullName());
                 proxyMethodInfo.setParameterInfo(proxyParameterInfo);
 
                 return proxyParameterInfo;
@@ -235,7 +229,44 @@ public class RxBusProcessor extends AbstractProcessor {
         return element.asType().getKind().isPrimitive();
     }
 
-    private String getParameterTypeString(VariableElement variableElement) {
+    private String getParameterFullName(VariableElement variableElement){
+        String typeString = "";
+        if (isBasicType(variableElement)) {
+            switch (variableElement.asType().getKind()) {
+                case BOOLEAN:
+                    typeString = "java.lang.Boolean";
+                    break;
+                case BYTE:
+                    typeString = "java.lang.Byte";
+                    break;
+                case SHORT:
+                    typeString = "java.lang.Short";
+                    break;
+                case INT:
+                    typeString = "java.lang.Integer";
+                    break;
+                case LONG:
+                    typeString = "java.lang.Long";
+                    break;
+                case CHAR:
+                    typeString = "java.lang.Char";
+                    break;
+                case FLOAT:
+                    typeString = "java.lang.Float";
+                    break;
+                case DOUBLE:
+                    typeString = "java.lang.Double";
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            typeString = variableElement.asType().toString();
+        }
+        return typeString;
+    }
+
+    private String getParameterClassName(VariableElement variableElement) {
         String typeString = "";
         if (isBasicType(variableElement)) {
             switch (variableElement.asType().getKind()) {
