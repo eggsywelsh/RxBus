@@ -7,8 +7,8 @@ Based on java APT technology, dynamically generated based on RxJava and RxAndroi
 in you module's build.gradle then add below dependencies
 ````
 dependencies {
-    annotationProcessor 'com.eggsy:rxbus-processor:0.0.1'
-    compile 'com.eggsy:rxbus:0.0.1'
+    annotationProcessor 'com.eggsy:rxbus-processor:0.0.3'
+    compile 'com.eggsy:rxbus:0.0.3'
     // RxJava and RxAndroid is necessary
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex.rxjava2:rxjava:2.0.4'
