@@ -50,4 +50,4 @@ Then, where you want to unsubscribe, use the following method
 ````
 
 ### Sample
-Fork or download my github project [RxBus](https://github.com/eggsywelsh) to see more Samples
+Fork or download my github project [RxBus](https://github.com/eggsywelsh/RxBus) to see more Samples
