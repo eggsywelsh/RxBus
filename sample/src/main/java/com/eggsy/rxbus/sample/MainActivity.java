@@ -18,12 +18,15 @@ public class MainActivity extends AppCompatActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
 
+    private TestInternalClass testInternalClass = new TestInternalClass();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         RxBus.register(this);
+        RxBus.register(testInternalClass);
     }
 
     @EventSubscribe(tmode = ThreadMode.IoThread)
@@ -97,5 +100,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         RxBus.unRegister(this);
+    }
+
+    public class TestInternalClass{
+        @EventSubscribe
+        public void testCustomEvent(TestEvent event) {
+            Log.i(TAG, "test internal class custom Event, event=" + event.toString());
+        }
     }
 }

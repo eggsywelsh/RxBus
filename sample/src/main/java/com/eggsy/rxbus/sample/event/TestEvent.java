@@ -10,6 +10,14 @@ public class TestEvent {
 
     private String content;
 
+    public TestEvent() {
+    }
+
+    public TestEvent(int times, String content) {
+        this.times = times;
+        this.content = content;
+    }
+
     public int getTimes() {
         return times;
     }
