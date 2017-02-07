@@ -12,6 +12,7 @@ import com.squareup.javapoet.TypeVariableName;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -40,7 +41,8 @@ public class ProxyClassInfo {
     private String proxyClassFullName;
 
     /**
-     * proxy source class simple name
+     * proxy source class simple name,
+     * if the class is internal class, the simple name include outter class name
      */
     private String proxyClassSimpleName;
 
@@ -67,14 +69,41 @@ public class ProxyClassInfo {
         String packageName = packageElement.getQualifiedName().toString();
         //classname
         classElement.getSimpleName();
-        String className = classElement.getSimpleName().toString();
+//        String simpleClassName = classElement.getSimpleName().toString();
 
-        this.proxyClassSimpleName = className;
+        this.proxyClassSimpleName = getClassName(classElement);
         this.proxyClassElement = classElement;
         this.packageName = packageName;
-        this.generateTargetClassSimpleName = className + SUFFIX;
+//        this.generateTargetClassSimpleName = simpleClassName + SUFFIX;
+        this.generateTargetClassSimpleName = getGenerateTargetClassName(classElement);
         this.proxyClassFullName = classElement.getQualifiedName().toString();
         this.generateCode = new GenerateCode();
+        isInternalClass(proxyClassElement);
+    }
+
+    public String getGenerateTargetClassName(TypeElement classElement){
+        String className = "";
+        if(isInternalClass(classElement)){
+            className = getClassName((TypeElement)classElement.getEnclosingElement())+"$"+classElement.getSimpleName().toString();
+        }else{
+            className = classElement.getSimpleName().toString()+className;
+        }
+        return className+SUFFIX;
+    }
+
+    public String getClassName(TypeElement classElement){
+        String className = "";
+        if(isInternalClass(classElement)){
+            className = getClassName((TypeElement)classElement.getEnclosingElement())+"."+classElement.getSimpleName().toString();
+        }else{
+            className = classElement.getSimpleName().toString()+className;
+        }
+        return className;
+    }
+
+    public boolean isInternalClass(TypeElement classElement){
+        Element element = classElement.getEnclosingElement();
+        return element instanceof TypeElement;
     }
 
     public void setProxyMethodInfoMap(HashMap<String, ProxyMethodInfo> proxyMethodInfoMap) {
@@ -96,7 +125,7 @@ public class ProxyClassInfo {
                     .addModifiers(Modifier.PUBLIC)
                     .addSuperinterface(
                             ParameterizedTypeName.get(ClassName.bestGuess("com.eggsy.rxbus.internal.RxBusProxy"),
-                                    TypeVariableName.get(proxyClassElement.getSimpleName().toString())));
+                                    TypeVariableName.get(proxyClassSimpleName)));
 
             classBuilder.addField(generateCompositeDisposableField());
             classBuilder.addField(generateProxySourceInstanceCode());
