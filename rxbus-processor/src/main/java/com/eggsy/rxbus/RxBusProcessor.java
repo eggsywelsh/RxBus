@@ -7,7 +7,6 @@ import com.eggsy.rxbus.assist.ProxyParameterInfo;
 import com.eggsy.rxbus.util.ClassValidator;
 import com.squareup.javapoet.JavaFile;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -89,8 +88,9 @@ public class RxBusProcessor extends AbstractProcessor {
                             .builder(proxyInfo.getPackageName(), proxyInfo.generateCode.generateProxyClassCode())
                             .build();
                     javaFile.writeTo(filer);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     error(e.getMessage());
+                    return true;
                 }
             }
         }
