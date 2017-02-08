@@ -69,12 +69,10 @@ public class ProxyClassInfo {
         String packageName = packageElement.getQualifiedName().toString();
         //classname
         classElement.getSimpleName();
-//        String simpleClassName = classElement.getSimpleName().toString();
 
         this.proxyClassSimpleName = getClassName(classElement);
         this.proxyClassElement = classElement;
         this.packageName = packageName;
-//        this.generateTargetClassSimpleName = simpleClassName + SUFFIX;
         this.generateTargetClassSimpleName = getGenerateTargetClassName(classElement);
         this.proxyClassFullName = classElement.getQualifiedName().toString();
         this.generateCode = new GenerateCode();
