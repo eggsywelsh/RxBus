@@ -1,5 +1,6 @@
 package com.eggsy.rxbus.assist;
 
+import com.eggsy.rxbus.util.ClassValidator;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -56,7 +57,7 @@ public class ProxyClassInfo {
      */
     private TypeElement proxyClassElement;
 
-    public GenerateCode generateCode;
+    public GenerateCodeHelper generateCode;
 
     private HashMap<String, ProxyMethodInfo> proxyMethodInfoMap;
 
@@ -75,23 +76,30 @@ public class ProxyClassInfo {
         this.packageName = packageName;
         this.generateTargetClassSimpleName = getGenerateTargetClassName(classElement);
         this.proxyClassFullName = classElement.getQualifiedName().toString();
-        this.generateCode = new GenerateCode();
+        this.generateCode = new GenerateCodeHelper();
         isInternalClass(proxyClassElement);
     }
 
-    public String getGenerateTargetClassName(TypeElement classElement){
+    public String getGenerateTargetClassName(TypeElement classElement) {
         String className = "";
         if(isInternalClass(classElement)){
-            className = getClassName((TypeElement)classElement.getEnclosingElement())+"$"+classElement.getSimpleName().toString();
+            try{
+                className = getClassName((TypeElement)classElement.getEnclosingElement())+"$"+classElement.getSimpleName().toString();
+            }catch (RuntimeException e){
+                throw e;
+            }
         }else{
             className = classElement.getSimpleName().toString()+className;
         }
         return className+SUFFIX;
     }
 
-    public String getClassName(TypeElement classElement){
+    public String getClassName(TypeElement classElement) {
         String className = "";
         if(isInternalClass(classElement)){
+            if(ClassValidator.isPrivate(classElement)){
+                throw new RuntimeException("internal class should be decorate by protected or public , private is not allow");
+            }
             className = getClassName((TypeElement)classElement.getEnclosingElement())+"."+classElement.getSimpleName().toString();
         }else{
             className = classElement.getSimpleName().toString()+className;
@@ -112,12 +120,12 @@ public class ProxyClassInfo {
         return packageName;
     }
 
-    public class GenerateCode {
+    public class GenerateCodeHelper {
 
         private final static String COMPOSITE_DISPOSABLE_FIELD = "compositeDisposable";
         private final static String SOURCE_PROXY_FIELD = "sourceInstance";
 
-        public TypeSpec generateProxyClassCode() {
+        public TypeSpec generateProxyClassCode() throws Exception{
             TypeSpec.Builder classBuilder = TypeSpec.classBuilder(generateTargetClassSimpleName);
             classBuilder
                     .addModifiers(Modifier.PUBLIC)
